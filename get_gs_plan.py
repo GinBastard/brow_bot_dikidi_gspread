@@ -27,8 +27,8 @@ def get_plan_dates():
     sheet = gc.open('График_работы_брови').worksheet("Plan")
 
     ##### поиск стартовой и конечной даты
-    start_date = '22-04-2024'  # указать первую дату из dikidi
-    end_date = '01-05-2024'    # указать последнюю дату из dikidi
+    start_date = '23-04-2024'  # указать первую дату из dikidi
+    end_date = '02-05-2024'    # указать последнюю дату из dikidi
 
     # Поиск значения дат в столбце 1 и получение их номера ряда
     start_date_g = sheet.findall(start_date, in_column=1)[0]
@@ -82,6 +82,9 @@ def get_plan_dates():
             df_plan.at[date, str(hour)] = time_p
 
     # pprint(date_time_plan)
-    print(df_plan)
+    print('Дата фрейм plan:\n', df_plan)
+    return df_plan
 
 
+
+#get_plan_dates()

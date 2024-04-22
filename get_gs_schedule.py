@@ -45,5 +45,6 @@ def get_schedule_dates():
     df_schedule_ready = df_schedule.fillna("None")
     df_schedule_ready2 = df_schedule_ready.rename(columns={1: 8, 2: 9, 3: 10, 4: 11, 5: 12, 6: 13, 7: 14, 8: 15, 9: 16, 10: 17, 11: 18})
 
-    print(df_schedule_ready2)
+    return df_schedule_ready2
+    #print(df_schedule_ready2)
 

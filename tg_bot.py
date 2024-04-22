@@ -17,21 +17,12 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
     # Для простых тестов и отладки вы можете использовать MemoryStorage,
     # который хранит состояния и данные в памяти. Однако, на боевом сервере для продакшена лучше использовать другие хранилища, такие как RedisStorage.
 
-import get_dikidi as dikidi          # get_dikidi_dates(url)
-import get_gs_plan as plan           # get_plan_dates()
-import get_gs_schedule as schedule   # get_schedule_dates()
 
+import result_date_time as result    # result_date_time(selected_procedure, selected_place)
 
 # tatoo_brow_bot
 # t.me/tatoo_brow_bot
 API_TOKEN = '7141747698:AAHu-H6Z7w3Jm8kIvjc_6XaGyLzN5bK2x54'
-
-
-
-
-url_4h = 'https://dikidi.ru/ru/record/658559?p=4.pi-po-sm-ss-sd&o=1&m=1505101&s=5918559&rl=0_0&source=widget'  # Замените URL на адрес нужного веб-сайта
-
-#dikidi.get_dikidi_dates(url_4h)       # запуск функции из файла get_dikidi.py - Замените URL на адрес нужного веб-сайта
 
 
 bot = Bot(token=API_TOKEN)
@@ -94,6 +85,9 @@ async def process_place_choice(message: types.Message, state: FSMContext):
     await message.answer(f"Выбрано место: {selected_place}. \nСейчас сверю график и вернусь к вам (в теч. 10-15 сек.), выберем дату и время процедуры.", reply_markup=types.ReplyKeyboardRemove())
 
     await state.finish()
+
+
+
 # далее:
 # передать в функцию result_date_time:    selected_procedure и selected_procedure
 # в result_date_time происходит:
@@ -109,7 +103,19 @@ async def process_place_choice(message: types.Message, state: FSMContext):
 # 10) ...а также отправляем мастеру сообщение о новой записи и размещаем в таблице Schedule отметки о записи.
 #
 
+df_result = result.result_date_time(selected_procedure, selected_place)  # создаем df_result - в файле result_date_time.py
 
+def create_keyboard_dates_and_times(df_result):
+    keyboard = types.InlineKeyboardMarkup()
+    dates = df_result.index.unique()
+    for date in dates:
+        times = df_result.loc[date].dropna().unique()
+        button = types.InlineKeyboardButton(
+            f"{date} {times[0]}",
+            callback_data=f"date_{date}_{times[0]}",
+        )
+        keyboard.add(button)
+    return keyboard
 
 # @dp.message_handler()
 # async def echo(message: types.Message):

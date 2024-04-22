@@ -65,8 +65,10 @@ def get_dikidi_dates(url):
                    hour += 1
                 df_dikidi.at[date, str(hour)] = time_e
 
+    print('Дата фрейм dikidi:\n', df_dikidi)
+    return df_dikidi
     #pprint(date_time)
-    print(df_dikidi)
+
 
 
 # url_4h = 'https://dikidi.ru/ru/record/658559?p=4.pi-po-sm-ss-sd&o=1&m=1505101&s=5918559&rl=0_0&source=widget'  # Замените URL на адрес нужного веб-сайта
