@@ -11,6 +11,11 @@
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.dispatcher import FSMContext
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
+    # Для простых тестов и отладки вы можете использовать MemoryStorage,
+    # который хранит состояния и данные в памяти. Однако, на боевом сервере для продакшена лучше использовать другие хранилища, такие как RedisStorage.
 
 import get_dikidi as dikidi          # get_dikidi_dates(url)
 import get_gs_plan as plan           # get_plan_dates()
@@ -30,12 +35,19 @@ url_4h = 'https://dikidi.ru/ru/record/658559?p=4.pi-po-sm-ss-sd&o=1&m=1505101&s=
 
 
 bot = Bot(token=API_TOKEN)
-dp = Dispatcher(bot)
+dp = Dispatcher(bot, storage=MemoryStorage())
 
 
 
 procedures = ['Межресничка', 'Волоски', 'Гиперреализм', 'Пудровое']
 places = ['Звездная', 'Пушкин', 'Московская']
+
+
+class ProcedureSelection(StatesGroup):
+    procedure = State()
+class PlaceSelection(StatesGroup):
+    place = State()
+
 
 def create_keyboard_procedures(procedures):
     buttons = [KeyboardButton(text) for text in procedures]
@@ -50,26 +62,38 @@ def create_keyboard_places(places):
 
 @dp.message_handler(commands=['start'])
 async def start(message: types.Message):
-    # chat_id = message.chat.id
-    # await bot.send_message(chat_id, "Выберите процедуру", reply_markup=keyboard)
     keyboard_procedures = create_keyboard_procedures(procedures)
     await message.answer("Выберите процедуру", reply_markup=keyboard_procedures)
+    await ProcedureSelection.procedure.set()
 
 
-@dp.message_handler()
-async def process_choice(message: types.Message):
+@dp.message_handler(state=ProcedureSelection.procedure)
+async def process_procedure_choice(message: types.Message, state: FSMContext):
     global selected_procedure
+    selected_procedure = message.text  # выбранная процедура!!
+
+    if selected_procedure not in procedures:
+        await message.answer("Пожалуйста, выберите процедуру из списка кнопок.")
+        return
+
+    keyboard_places = create_keyboard_places(places)
+    await message.answer(f"Выбрана процедура: {selected_procedure}. Выберите место", reply_markup=keyboard_places)
+    await state.update_data(selected_procedure=selected_procedure)
+    await PlaceSelection.place.set()
+
+@dp.message_handler(state=PlaceSelection.place)
+async def process_place_choice(message: types.Message, state: FSMContext):
     global selected_place
+    selected_place = message.text
 
-    if message.text in procedures:
-        selected_procedure = message.text     # выбранная процедура!!
-        keyboard_places = create_keyboard_places(places)
-        await message.answer(f"Выбрана процедура: {selected_procedure}. Выберите место", reply_markup=keyboard_places)
-    elif message.text in places:
-        selected_place = message.text
-        await message.answer(f"Выбрано место: {selected_place}. Сейчас сверю график и вернусь к вам (в теч. 10-15 сек.), выберем дату и время процедуры.")
+    if selected_place not in places:
+        await message.answer("Пожалуйста, выберите место из списка кнопок.")
+        return
 
+    # Здесь вызовите вашу функцию для запуска процесса
+    await message.answer(f"Выбрано место: {selected_place}. \nСейчас сверю график и вернусь к вам (в теч. 10-15 сек.), выберем дату и время процедуры.", reply_markup=types.ReplyKeyboardRemove())
 
+    await state.finish()
 # далее:
 # передать в функцию result_date_time:    selected_procedure и selected_procedure
 # в result_date_time происходит:
