@@ -23,7 +23,7 @@ def get_schedule_dates():
     sheet2 = gc.open('График_работы_брови').worksheet("Schedule")
 
     ##### поиск стартовой и конечной даты
-    start_date = '22-04-2024'  # указать первую дату из dikidi
+    start_date = '23-04-2024'  # указать первую дату из dikidi
     end_date = '01-05-2024'    # указать последнюю дату из dikidi
 
     # Поиск значения дат в столбце 1 и получение их номера ряда
@@ -45,6 +45,15 @@ def get_schedule_dates():
     df_schedule_ready = df_schedule.fillna("None")
     df_schedule_ready2 = df_schedule_ready.rename(columns={1: 8, 2: 9, 3: 10, 4: 11, 5: 12, 6: 13, 7: 14, 8: 15, 9: 16, 10: 17, 11: 18})
 
-    return df_schedule_ready2
-    #print(df_schedule_ready2)
+    # Удаление заголовка у индексного столбца
+    df_schedule_ready2.index.name = None
+    # Замена значений None на пустые значения
+    df_schedule_ready2.replace('None', '', inplace=True)
+    # Переформатирование значений даты в индексном столбце
+    df_schedule_ready2.index = pd.to_datetime(df_schedule_ready2.index, format='%d-%m-%Y').strftime('%Y-%m-%d')
 
+    # print(df_schedule_ready2)
+
+    return df_schedule_ready2.fillna('')
+
+print(get_schedule_dates())

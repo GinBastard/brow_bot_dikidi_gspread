@@ -82,9 +82,9 @@ def get_plan_dates():
             df_plan.at[date, str(hour)] = time_p
 
     # pprint(date_time_plan)
-    print('Дата фрейм plan:\n', df_plan)
-    return df_plan
+    print('Дата фрейм plan:\n', df_plan.fillna(''))
+    return df_plan.fillna('')
 
 
-
-#get_plan_dates()
+#
+# get_plan_dates()

@@ -24,21 +24,42 @@ def result_date_time(selected_procedure, selected_place):
     # !!! здесь получить даты - первую и последнюю из df_dikidi , переформатирвать их, и вставить в plan.get_plan_dates() и schedule.get_schedule_dates()
 
     df_plan = plan.get_plan_dates()
-    #df_schedule = schedule.get_schedule_dates()
+    df_schedule = schedule.get_schedule_dates()
 
-    # Соединяем датафреймы по дате
-    df_result = df_dikidi.merge(df_plan, left_index=True, right_index=True, how='inner')
-    # Убираем лишние столбцы из merged_df
-    df_result = df_result[['8_x', '9_x', '10_x', '11_x', '12_x', '13_x', '14_x', '15_x', '16_x', '17_x', '18_x']]
+    # Нахождение общих индексов
+    common_index = df_dikidi.index.intersection(df_plan.index)
 
-    # Переименовываем столбцы
-    df_result.columns = ['8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18']
+    # Нахождение общих столбцов
+    common_columns = df_dikidi.columns.intersection(df_plan.columns)
 
-    # Соединение df_dikidi, df_plan, df_schedule
-    #df_result = pd.concat([df_dikidi, df_plan, df_schedule], axis=1)
-    #df_result = df_result.dropna()
+    # Создание пустого итогового датафрейма
+    result_df = pd.DataFrame(index=common_index, columns=common_columns)
 
-    return df_result
+    # Заполнение итогового датафрейма значениями из df_dikidi, если значения совпадают, иначе пустыми значениями
+    for col in common_columns:
+        result_df[col] = df_dikidi.loc[common_index, col].where(df_dikidi.loc[common_index, col] == df_plan.loc[common_index, col], '')
+
+
+    #return result_df
+
+    print('Результат:\n', result_df)
+
+    # Нахождение общих индексов
+    common_index = result_df.index.intersection(df_schedule.index)
+
+    # Нахождение общих столбцов
+    common_columns = result_df.columns.intersection(df_schedule.columns)
+
+    # Создание пустого итогового датафрейма
+    final_df = pd.DataFrame(index=common_index, columns=common_columns)
+
+    # Заполнение итогового датафрейма final_df значениями из result_df, если значения в df_schedule пусты
+    for col in common_columns:
+        final_df[col] = result_df.loc[common_index, col]
+
+    print(f'result_df (2, 4): {df_schedule.iloc[2, 3]} - {type(df_schedule.iloc[2, 3])}, [ {df_schedule.iloc[2, 2]} ] - {type(df_schedule.iloc[2, 2])}')
+
+    return final_df
     # Возвращаем в tg_bot.py -  df_result с подготвленными допустимыми датами и временем
 
-print('Результат:\n', result_date_time(selected_procedure, selected_place))
+print('Финал:\n', result_date_time(selected_procedure, selected_place))

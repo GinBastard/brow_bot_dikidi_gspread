@@ -65,8 +65,8 @@ def get_dikidi_dates(url):
                    hour += 1
                 df_dikidi.at[date, str(hour)] = time_e
 
-    print('Дата фрейм dikidi:\n', df_dikidi)
-    return df_dikidi
+    print('Дата фрейм dikidi:\n', df_dikidi.fillna(''))
+    return df_dikidi.fillna('')
     #pprint(date_time)
 
 
