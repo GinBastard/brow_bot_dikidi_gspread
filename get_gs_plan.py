@@ -3,13 +3,13 @@
 
 import gspread
 from google.oauth2.service_account import Credentials
-# В ДОСТУП к файлу - обязательно добавить e-mail клиента - из проекта Google!!!
+# # В ДОСТУП к файлу - обязательно добавить e-mail клиента - из проекта Google!!!
 
 from pprint import pprint
 from datetime import datetime
 import pandas as pd
 pd.set_option('display.expand_frame_repr', False)   # показывать все строки и столбцы без переносов
-
+from tabulate import tabulate
 
 scopes = [
     'https://www.googleapis.com/auth/spreadsheets',
@@ -23,17 +23,20 @@ gc = gspread.authorize(credentials)
 
 #=====================================
 
-def get_plan_dates():
+def get_plan_dates(date1, date2):
     sheet = gc.open('График_работы_брови').worksheet("Plan")
 
     ##### поиск стартовой и конечной даты
-    start_date = '23-04-2024'  # указать первую дату из dikidi
-    end_date = '02-05-2024'    # указать последнюю дату из dikidi
+    # start_date = '23-04-2024'  # указать первую дату из dikidi
+    # end_date = '02-05-2024'    # указать последнюю дату из dikidi
+    date1_f = datetime.strptime(date1, "%Y-%m-%d").strftime("%d-%m-%Y")
+    date2_f = datetime.strptime(date2, "%Y-%m-%d").strftime("%d-%m-%Y")
+
 
     # Поиск значения дат в столбце 1 и получение их номера ряда
-    start_date_g = sheet.findall(start_date, in_column=1)[0]
+    start_date_g = sheet.findall(date1_f, in_column=1)[0]
     start_row = start_date_g.row
-    end_date_g = sheet.findall(end_date, in_column=1)[0]
+    end_date_g = sheet.findall(date2_f, in_column=1)[0]
     end_row = end_date_g.row
 
 
@@ -82,7 +85,8 @@ def get_plan_dates():
             df_plan.at[date, str(hour)] = time_p
 
     # pprint(date_time_plan)
-    print('Дата фрейм plan:\n', df_plan.fillna(''))
+    #print('Дата фрейм plan:\n',  tabulate(df_plan.fillna(''), headers='keys', tablefmt='pretty'))
+
     return df_plan.fillna('')
 
 

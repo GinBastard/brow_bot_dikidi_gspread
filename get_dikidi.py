@@ -10,7 +10,7 @@ from pprint import pprint
 from datetime import datetime
 import pandas as pd
 pd.set_option('display.expand_frame_repr', False)   # показывать все строки и столбцы без переносов
-
+from tabulate import tabulate
 
 
 
@@ -65,7 +65,7 @@ def get_dikidi_dates(url):
                    hour += 1
                 df_dikidi.at[date, str(hour)] = time_e
 
-    print('Дата фрейм dikidi:\n', df_dikidi.fillna(''))
+    #print('Дата фрейм dikidi:\n', tabulate(df_dikidi.fillna(''), headers='keys', tablefmt='pretty'))
     return df_dikidi.fillna('')
     #pprint(date_time)
 
