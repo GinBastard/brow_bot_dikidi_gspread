@@ -47,6 +47,8 @@ class DateTimeSelection(StatesGroup):
 class PhoneNumberSelection(StatesGroup):
     waiting_for_phone = State()
 
+
+
 def create_keyboard_procedures(procedures):
     buttons = [KeyboardButton(text) for text in procedures]
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True).add(*buttons)
@@ -57,7 +59,7 @@ def create_keyboard_places(places):
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True).add(*buttons)
     return keyboard
 
-def create_keyboard_dates_and_times(df_result):
+async def create_keyboard_dates_and_times(df_result,  state: FSMContext):
     dt = []
     dates = df_result.index
     for date in dates:
@@ -67,6 +69,7 @@ def create_keyboard_dates_and_times(df_result):
                 dt.append(f"{date} {time}")
     buttons = [KeyboardButton(text) for text in dt]
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True).add(*buttons)
+    await state.update_data(dt=dt)
     return keyboard
 
 #df_result = None
@@ -119,18 +122,20 @@ async def process_place_choice(message: types.Message, state: FSMContext):
 
     df_result = result.result_date_time(selected_procedure, selected_place)  # создаем df_result - в файле result_date_time.py
 
-    keyboard_dates_and_times = create_keyboard_dates_and_times(df_result)
+    keyboard_dates_and_times = create_keyboard_dates_and_times(df_result, state=)
 
     await message.answer("Спасибо за ожидание.\nВыберите дату и время:", reply_markup=keyboard_dates_and_times)
     await state.update_data(df_result=df_result)
 
 
+
 @dp.message_handler(state=DateTimeSelection.date_time)
-async def process_date_time_choice(message: types.Message, state: FSMContext, df_result):
+async def process_date_time_choice(message: types.Message, state: FSMContext):
     global selected_date_time
     #selected_date_time = message.text
     data = await state.get_data()
     df_result = data.get('df_result')
+    dt = data.get('dt')
     # Получение доступных дат и времени из датафрейма df_result
 
     if df_result is not None:
@@ -138,7 +143,7 @@ async def process_date_time_choice(message: types.Message, state: FSMContext, df
         times = df_result.columns
 
     # Проверка, что сообщение пользователя соответствует одной из доступных дат и времени
-    if message.text in [f"{date} {time}" for date in dates for time in times]:
+    if message.text in dt:
         selected_date_time = message.text
     else:
         await message.answer("Пожалуйста, выберите дату и время из списка кнопок.")
