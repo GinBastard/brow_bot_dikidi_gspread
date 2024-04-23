@@ -23,17 +23,37 @@ import get_gs_plan as plan           # get_plan_dates()
 import get_gs_schedule as schedule   # get_schedule_dates()
 
 # ссылки на фреймы dikidi:
-url_zvezdn_4h = 'https://dikidi.ru/ru/record/658559?p=4.pi-po-sm-ss-sd&o=1&m=1505101&s=5918559&rl=0_0&source=widget'
+url_zvezdn_2h = 'https://dikidi.ru/ru/record/658559?p=4.pi-po-sm-ss-sd&o=1&m=1505103&s=5918615&rl=0_0&source=widget'
+url_zvezdn_4h = 'https://dikidi.ru/ru/record/658559?p=4.pi-po-sm-ss-sd&o=1&m=1505103&s=5918625&rl=0_0&source=widget'
+url_push_2h = 'https://dikidi.net/686867?p=2.pi-ssm-sd&o=10&m=2352562&s=10102456&rl=0_undefined'
+url_push_4h = 'https://dikidi.net/686867?p=2.pi-mi-sd&o=11&m=2352562&s=10102534&rl=0_undefined'
 
+
+procedures = ['Межресничка', 'Волоски', 'Гиперреализм', 'Пудровое']
+places = ['Звездная', 'Пушкин']
 
 # ВРЕМЕННО ...
-selected_procedure = 'Межресничка'
-selected_place = 'Звездная'
+# selected_procedure = 'Волоски'
+# selected_place = 'Звездная'
 def result_date_time(selected_procedure, selected_place):
 
     # выбор нужного url расписания на dikidi в зависимости от услуги (продолжительности) и места
     if selected_place == 'Звездная' and selected_procedure == 'Межресничка':
-        url = url_zvezdn_4h
+        url = url_zvezdn_2h
+    elif selected_place == 'Звездная' and selected_procedure == 'Волоски':
+        url = url_zvezdn_2h
+    elif selected_place == 'Звездная' and selected_procedure == 'Гиперреализм':
+        url = url_zvezdn_2h
+    elif selected_place == 'Звездная' and selected_procedure == 'Пудровое':
+        url = url_zvezdn_2h
+    elif selected_place == 'Пушкин' and selected_procedure == 'Межресничка':
+        url = url_push_2h
+    elif selected_place == 'Пушкин' and selected_procedure == 'Волоски':
+        url = url_push_2h
+    elif selected_place == 'Пушкин' and selected_procedure == 'Гиперреализм':
+        url = url_push_2h
+    elif selected_place == 'Пушкин' and selected_procedure == 'Пудровое':
+        url = url_push_2h
 
     df_dikidi = dikidi.get_dikidi_dates(url)
 
@@ -115,5 +135,5 @@ def result_date_time(selected_procedure, selected_place):
 
     # Возвращаем в tg_bot.py -  df_result с подготвленными допустимыми датами и временем
 
-print('Финал:\n', tabulate(result_date_time(selected_procedure, selected_place), headers='keys', tablefmt='pretty'))
+#print('Финал:\n', tabulate(result_date_time(selected_procedure, selected_place), headers='keys', tablefmt='pretty'))
 #result_date_time(selected_procedure, selected_place)
