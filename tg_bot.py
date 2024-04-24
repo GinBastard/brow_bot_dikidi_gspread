@@ -15,11 +15,10 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher import FSMContext
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from aiogram.contrib.middlewares.logging import LoggingMiddleware
-
     # Для простых тестов и отладки вы можете использовать MemoryStorage,
     # который хранит состояния и данные в памяти. Однако, на боевом сервере для продакшена лучше использовать другие хранилища, такие как RedisStorage.
-
+from aiogram.contrib.middlewares.logging import LoggingMiddleware
+import asyncio
 
 import result_date_time as result    # result_date_time(selected_procedure, selected_place)
 
@@ -70,8 +69,26 @@ def create_keyboard_get_phone():
     keyboard.add(button)
     return keyboard
 
+def create_keyboard_restart():
+    button = types.KeyboardButton("Перезагрузить")
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.add(button)
+    return keyboard
 
 dt = []       # список для кнопок выбора даты и времени
+
+# Ваш код обработчиков команд и сообщений
+
+async def restart_bot(bot, dp):
+    await bot.close()
+    #await bot.session.close()
+    await dp.storage.close()
+    await dp.storage.wait_closed()
+
+    # Повторное создание экземпляров бота и диспетчера
+    bot = Bot(token=API_TOKEN)
+    dp = Dispatcher(bot, storage=MemoryStorage())
+    dp.middleware.setup(LoggingMiddleware())
 
 
 @dp.message_handler(commands=['start'])
@@ -85,6 +102,7 @@ async def start(message: types.Message):
 
     await message.answer(f"Привет, {user_name}!\nЯ помогу Вам записаться на прием к мастеру Веронике.")
     await start2(bot, message)
+
 @dp.message_handler()
 async def start2(bot, message: types.Message):
     keyboard_procedures = create_keyboard_procedures(procedures)
@@ -106,6 +124,8 @@ async def process_procedure_choice(message: types.Message, state: FSMContext):
     await state.update_data(selected_procedure=selected_procedure)
     await PlaceSelection.place.set()
 
+
+
 @dp.message_handler(state=PlaceSelection.place)
 async def process_place_choice(message: types.Message, state: FSMContext):
     global selected_place
@@ -116,10 +136,13 @@ async def process_place_choice(message: types.Message, state: FSMContext):
         selected_place = message.text
 
 
+
     # Здесь вызовите вашу функцию для запуска процесса
-    await message.answer(f"Выбрано место: {selected_place}. \nСейчас сверю график и вернусь к вам (в теч. 15-30 сек.), выберем дату и время процедуры.", reply_markup=types.ReplyKeyboardRemove())
+    await message.answer(f"Выбрано место: {selected_place}. \nСейчас сверю график и вернусь к Вам (в течение 15-30 секунд), выберем дату и время процедуры.", reply_markup=types.ReplyKeyboardRemove())
     await state.update_data(selected_place=selected_place)
 
+    # Отправка сообщения с текстом и эмодзи - песочные часы
+    await bot.send_message(message.chat.id, "\U000023F3")
 
     df_result = result.result_date_time(selected_procedure, selected_place)  # создаем df_result - в файле result_date_time.py
 
@@ -134,6 +157,7 @@ async def process_place_choice(message: types.Message, state: FSMContext):
     keyboard_dates_and_times = create_keyboard_dates_and_times(dt)
     await message.answer(f"Спасибо за ожидание.\nВыберите дату и время", reply_markup=keyboard_dates_and_times)
     await DateTimeSelection.date_time.set()
+
 
 @dp.message_handler(state=DateTimeSelection.date_time)
 async def process_date_time_choice(message: types.Message, state: FSMContext):
@@ -158,45 +182,36 @@ async def process_phone_number(message: types.Message, state: FSMContext):
     await message.answer(f"Спасибо!\nВероника свяжется с Вами для подтверждения записи в ближайшее время.\nХорошего дня!", reply_markup=types.ReplyKeyboardRemove())
     await state.update_data(user_phone=user_phone)
 
+    data = await state.get_data()
+    selected_procedure = data.get("selected_procedure")
+    selected_place = data.get("selected_place")
+    selected_date_time = data.get("selected_date_time")
+
 
     print(selected_procedure)
     print(selected_place)
     print(selected_date_time)
+    print(user_name)
     print(user_phone)
 
     # Отправка сообщения пользователю с командой /reset
-    await message.answer("Нажмите /reset, чтобы сбросить настройки.", reply_markup=types.ReplyKeyboardMarkup(resize_keyboard=True, keyboard=[[types.KeyboardButton("/reset")]]))
-    if message.text == "/reset":
-        selected_procedure = None
-        selected_place = None
-        selected_date_time = None
-        user_phone = None
+    keyboard_restart = create_keyboard_restart()
+    await message.answer("Нажмите Перезагрузить, чтобы сбросить настройки.", reply_markup=keyboard_restart)
+    if message.text == "Перезагрузить":
+        # selected_procedure = None
+        # selected_place = None
+        # selected_date_time = None
+        # user_phone = None
+        # Вызов функции перезапуска бота
         # # Сброс остальных сохраненных данных, если есть
         await state.reset_state()
         await state.finish()
-        await message.answer("Настройки сброшены. Вы можете начать процесс заново, нажав на кнопку /start.",
-                             reply_markup=types.ReplyKeyboardMarkup(
-                                 resize_keyboard=True,
-                                 keyboard=[
-                                     [types.KeyboardButton("/start")]
-                                 ]
-                             ))
+        await restart_bot(bot, dp)
 
 
-# @dp.message_handler(commands=['reset'])                #(commands=['reset'])
-# async def reset_settings(message: types.Message):
-    # код для сброса настроек пользователя
-    # например, сброс состояний FSMContext или удаление сохраненных данных о пользователе
-
-
-  
-
-
-
-# @dp.message_handler()
-# async def echo(message: types.Message):
-#     await message.answer('Пожалуйста, выберите параметры с помощью кнопок. \nЕсли кнопок не видно - нажмите на квадратную кнопку с 4 точками')     #message.text
 
 
 if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True)
+    loop = asyncio.get_event_loop()
+    loop.create_task(restart_bot(bot, dp))
+    executor.start_polling(dp, loop=loop, skip_updates=True)
