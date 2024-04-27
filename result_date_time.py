@@ -133,7 +133,7 @@ def result_date_time(selected_procedure, selected_place):
 
     return final_df
 
-    # Возвращаем в tg_bot.py -  df_result с подготвленными допустимыми датами и временем
+    # Возвращаем в brow_bot.py -  df_result с подготвленными допустимыми датами и временем
 
 #print('Финал:\n', tabulate(result_date_time(selected_procedure, selected_place), headers='keys', tablefmt='pretty'))
 #result_date_time(selected_procedure, selected_place)

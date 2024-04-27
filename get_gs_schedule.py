@@ -62,6 +62,7 @@ def get_schedule_dates(date1, date2):
         #print('Дата фрейм schedule_ready2:\n', tabulate(df_schedule_ready2.fillna(''), headers='keys', tablefmt='pretty'))
 
         return df_schedule_ready2.fillna('')
+
     except Exception as e:
         print(traceback.print_exc())
         print("Ошибка в получении df_schedule (gspread API)")
