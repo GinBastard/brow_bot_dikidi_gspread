@@ -1,8 +1,8 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-chrome_options = Options()
-chrome_options.add_argument("--headless")
+# chrome_options = Options()
+# chrome_options.add_argument("--headless")
 
 import time
 import pandas as pd
@@ -13,7 +13,7 @@ import traceback
 
 def get_dikidi_dates(url):
     try:
-        driver = webdriver.Chrome(options=chrome_options)  # Используем Chrome, но вы можете выбрать другой браузер
+        driver = webdriver.Chrome()  # Используем Chrome, но вы можете выбрать другой браузер .Chrome(options=chrome_options)
         driver.get(url)
 
         # Находим div, внутри которого содержится текст "ещё"
@@ -63,7 +63,7 @@ def get_dikidi_dates(url):
                        hour += 1
                     df_dikidi.at[date, str(hour)] = time_e
 
-        #print('Дата фрейм dikidi:\n', tabulate(df_dikidi.fillna(''), headers='keys', tablefmt='pretty'))
+        print('Дата фрейм dikidi:\n', tabulate(df_dikidi.fillna(''), headers='keys', tablefmt='pretty'))
         return df_dikidi.fillna('')
 
     except Exception as e:

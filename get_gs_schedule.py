@@ -58,8 +58,11 @@ def get_schedule_dates(date1, date2):
         # Переформатирование значений даты в индексном столбце
         df_schedule_ready2.index = pd.to_datetime(df_schedule_ready2.index, format='%d-%m-%Y').strftime('%Y-%m-%d')
 
+        columns = ['8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18']
+        df_schedule_ready2 = df_schedule_ready2.reindex(columns=columns, fill_value='')
+
         # print(df_schedule_ready2)
-        #print('Дата фрейм schedule_ready2:\n', tabulate(df_schedule_ready2.fillna(''), headers='keys', tablefmt='pretty'))
+        print('Дата фрейм schedule_ready2:\n', tabulate(df_schedule_ready2.fillna(''), headers='keys', tablefmt='pretty'))
 
         return df_schedule_ready2.fillna('')
 

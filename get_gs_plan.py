@@ -44,10 +44,11 @@ def get_plan_dates(date1, date2):
 
         # # Получение данных из определенного диапазона
         #data = sheet.get_values(start_row, 1, end_row, 5)
-        data_plan = sheet.get(f'A{start_row}:E{end_row}')
+        data_plan = sheet.get(f'A{start_row}:E{end_row}')    # .get возвращает возвращает только непустые строки
+        #data_plan = sheet.range(f'A{start_row}:E{end_row}')   # .range возвращает ВСЕ строки, вне зависимости от того пустые ли они (не заполнены)
         # # Создание DataFrame из полученных данных
         df_plan_short = pd.DataFrame(data_plan, columns=None)   # план работы
-
+        print(f"data_plan - содержимое sheet.range(f'A start_row:E end_row ) -  {data_plan}")
         #print(df_plan_short)
 
         date_time_plan = {}
@@ -87,7 +88,7 @@ def get_plan_dates(date1, date2):
                 df_plan.at[date, str(hour)] = time_p
 
         # pprint(date_time_plan)
-        #print('Дата фрейм plan:\n',  tabulate(df_plan.fillna(''), headers='keys', tablefmt='pretty'))
+        print('Дата фрейм plan:\n',  tabulate(df_plan.fillna(''), headers='keys', tablefmt='pretty'))
 
         return df_plan.fillna('')
 

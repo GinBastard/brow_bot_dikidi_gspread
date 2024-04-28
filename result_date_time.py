@@ -75,7 +75,7 @@ def result_date_time(selected_procedure, selected_place):
         result_df[col] = df_dikidi.loc[common_index, col]
         result_df[col] = result_df[col].where(result_df[col].str.split(':', expand=True)[0] == df_plan.loc[common_index, col].str.split(':', expand=True)[0], '')
 
-
+    print('Дата фрейм result_df:\n', tabulate(result_df.fillna(''), headers='keys', tablefmt='pretty'))
     #print('Дата фрейм result_df:\n', tabulate(result_df.fillna(''), headers='keys', tablefmt='pretty'))
 
 
@@ -130,7 +130,7 @@ def result_date_time(selected_procedure, selected_place):
     final_df = final_df.where(final_df == False, result_df)  # Замена True значениями из result_df
     final_df = final_df.replace(False, '')  # Замена False на пустые строки
 
-
+    print('Дата фрейм final_df:\n', tabulate(final_df.fillna(''), headers='keys', tablefmt='pretty'))
     return final_df
 
     # Возвращаем в brow_bot.py -  df_result с подготвленными допустимыми датами и временем
