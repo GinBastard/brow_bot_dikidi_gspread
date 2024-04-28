@@ -13,9 +13,6 @@ def create_keyboard_places(places):              # в каждом ряду - п
     keyboard = ReplyKeyboardMarkup(keyboard=[[button] for button in buttons], resize_keyboard=True)
     return keyboard
 
-
-
-
 def create_keyboard_dates_and_times(dt):               # выводится не более 3 кнопок в ряд, группировка по дате, форматирование даты
     buttons = [KeyboardButton(text=text) for text in dt]
     buttons.sort(key=lambda x: x.text)
@@ -42,6 +39,7 @@ def create_keyboard_get_phone():
     keyboard = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text='Отправить номер', request_contact=True)]],resize_keyboard=True)
     return keyboard
 
-def create_keyboard_restart():
-    keyboard = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text='Перезагрузить')]],resize_keyboard=True)
+def create_keyboard_add_note(add_note_answers):
+    buttons = [KeyboardButton(text=text) for text in add_note_answers]
+    keyboard = ReplyKeyboardMarkup(keyboard=[[button] for button in buttons], resize_keyboard=True)
     return keyboard

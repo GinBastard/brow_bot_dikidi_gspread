@@ -15,19 +15,19 @@ credentials = Credentials.from_service_account_file(
 )
 gc = gspread.authorize(credentials)
 
-def set_schedule(date_time, procedure, place, user, phone):
+def set_schedule(date_time, procedure, place, phone, user_name, note):
     sheet2 = gc.open('График_работы_брови').worksheet("Schedule")
 
     date, time = date_time.split()
     date_cell = sheet2.findall(date, in_column=1)[0]
     date_row = date_cell.row
-    date_col = date_cell.col
+    #date_col = date_cell.col
 
     time_hour = time.split(':')[0]
     time_cell = sheet2.find(time_hour, in_row=2)
-    time_row = time_cell.row
+    #time_row = time_cell.row
     time_col = time_cell.col
 
-    text = f"Запись: {procedure}, {place}, {user}, {phone}, {date_time}"
+    text = f"Запись: {procedure}, {place}, {user_name}, {phone}, {date_time}, {note}"
 
     sheet2.update_cell(date_row, time_col, text)
