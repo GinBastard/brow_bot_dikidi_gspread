@@ -4,6 +4,7 @@ from aiogram.filters import CommandStart    # CommandStart (/start), Command (л
 from aiogram.fsm.state import State, StatesGroup      # состояния (для хранения переменных)
 from aiogram.fsm.context import FSMContext            # контекст для состояний
 
+import asyncio
 import emoji
 
 from datetime import datetime
@@ -91,10 +92,22 @@ async def process_place_choice(message: Message, bot, state: FSMContext):
     # Отправка сообщения с текстом и эмодзи - песочные часы
     await bot.send_message(message.chat.id, "\U000023F3")
 
+    # Установка таймаута для ожидания данных
+    try:
+        await asyncio.wait_for(asyncio.sleep(3), timeout=40)  # Установка таймаута 40 секунд
+        print("Ожидание данных завершено.")
+    except asyncio.TimeoutError:                              # Если время ожидания истекло - появится сообщение и остановка выполнения функций - return
+        await message.reply("Время ожидания данных превышено. Возможно, технические неполадки 🤷‍♂️\nПожалуйста, попробуйте попозже 🙏\n"
+                            "Чтобы перезагрузить бота - выберите 'Начать сначала' из меню СЛЕВА от строки ввода сообщений 👈")
+        return
+    
+    # Если время ожидания не истекло - продолжаем выполнение функций
     data = await state.get_data()
-    df_result = result.result_date_time(data["procedure"], data["place"])  # создаем датафрейм df_result - в файле result_date_time.py получаем final_df
+
+    df_result = result.result_date_time(data["procedure"], data["place"])   # создаем датафрейм df_result - в файле result_date_time.py получаем final_df
 
     # Заполняем dt из df_result
+    global dt  # объявляем, что берем глобальную переменную dt
     dates = df_result.index
     for date in dates:
         times = [time for time in df_result.loc[date] if time != '']    # формируем список
