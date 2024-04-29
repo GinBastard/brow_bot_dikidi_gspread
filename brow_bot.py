@@ -3,8 +3,8 @@ pd.set_option('display.expand_frame_repr', False)   # показывать вс�
 
 import asyncio
 
-from aiogram import Bot, Dispatcher
-from app.handlers import router
+from aiogram import Bot, Dispatcher     # Dispatcher - обработчик событий
+from app.handlers import router         # импортируем обработчика событий из другого файла, где он используется handlers.py
 
 
 
@@ -17,8 +17,8 @@ dp = Dispatcher()
 
 
 async def main():
-    dp.include_router(router)
-    await dp.start_polling(bot)
+    dp.include_router(router)        # подключаем обработчика событий из handlers.py к Dispatcher
+    await dp.start_polling(bot)      # запускаем бота
 
 
 if __name__ == '__main__':
