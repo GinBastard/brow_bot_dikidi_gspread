@@ -73,3 +73,13 @@ def create_keyboard_add_note(add_note_answers):
     buttons = [KeyboardButton(text=text) for text in add_note_answers]
     keyboard = ReplyKeyboardMarkup(keyboard=[[button] for button in buttons], resize_keyboard=True)
     return keyboard
+
+def create_keyboard_chat_veron():
+    button = InlineKeyboardButton(text="Перейти к чату", url="https://t.me/G_Veronik")
+    markup_veron = InlineKeyboardMarkup(inline_keyboard=[[button]])
+    return markup_veron
+
+def create_keyboard_start():
+    keyboard = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text='/start')]],
+                                   resize_keyboard=True)
+    return keyboard
