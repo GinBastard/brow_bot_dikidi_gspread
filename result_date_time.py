@@ -72,6 +72,8 @@ def result_date_time(selected_procedure, selected_place):
     final_df = final_df.where(final_df == False, result_df)  # Замена True значениями из result_df
     final_df = final_df.replace(False, '')                   # Замена False на пустые строки
 
-         # Выводим финальный разграфленный датафрейм
-    print('Дата фрейм final_df:\n', tabulate(final_df.fillna(''), headers='keys', tablefmt='pretty'))
-    return final_df.fillna('')      # Возвращаем финальный  датафрейм
+    df_final = final_df.fillna('')
+    # Выводим финальный разграфленный датафрейм
+    print('Дата фрейм df_final:\n', tabulate(df_final.fillna(''), headers='keys', tablefmt='pretty'))
+
+    return df_final      # Возвращаем финальный  датафрейм, заполненный в пустотах - пустыми строками

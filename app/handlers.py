@@ -4,6 +4,8 @@ from aiogram.filters import CommandStart, Command    # CommandStart (/start), Co
 from aiogram.fsm.state import State, StatesGroup      # состояния (для хранения переменных)
 from aiogram.fsm.context import FSMContext            # контекст для состояний
 
+import pandas as pd
+pd.set_option('display.expand_frame_repr', False)   # показывать все строки и столбцы без переносов
 
 import asyncio
 import emoji
@@ -46,6 +48,11 @@ places = ['Звездная', 'Пушкин']
 dt = []                          # пустой глобальный список для хранения даты и времени
 add_note_answers = ["Ввести примечание", "Оформить запись"]
 veron_chat_id = '1462946426'        # id чата мастера для отправки оповещений о заявках
+places_url = {
+                'Звездная': 'https://dikidi.ru/ru/record/658559?p=4.pi-po-sm-ss-sd&o=1&m=1505103&s=5918615&rl=0_0&source=widget',
+                'Пушкин': 'https://dikidi.net/686867?p=2.pi-ssm-sd&o=10&m=2352562&s=10102456&rl=0_undefined'
+              }
+gsheet_schedule_url = 'https://docs.google.com/spreadsheets/d/1ICEBZr97FBnjnBRqb-rAxkIZn_o_tRjhjQJ_PhPoVdw/edit#gid=1468526436'
 
 @router.message(CommandStart())                                # ловит команду /start
 async def start(message: Message, bot, state: FSMContext):     # оперирует сообщениями от юзера, сообщениями от бота, сменами состояний
@@ -115,7 +122,6 @@ async def process_procedure_choice(message: Message, state: FSMContext):
 
 @router.message(PlaceSelection.place)
 async def process_place_choice(message: Message, bot, state: FSMContext):
-    #selected_place = ''
     if message.text not in places:
         await message.answer(f"Пожалуйста, выберите место из списка кнопок 👇")
     else:
@@ -130,37 +136,65 @@ async def process_place_choice(message: Message, bot, state: FSMContext):
 
         data = await state.get_data()
 
-        # Запускаем асинхронную функцию с таймаутом
+        # Запускаем асинхронную функцию с таймаутом (запуск процесса асинхронно и проверка его завершения)
         with concurrent.futures.ThreadPoolExecutor() as executor:
             future = executor.submit(result.result_date_time, data["procedure"], data["place"])  # передаём нужную функцию и параметры (отдельно)
             wait_time = 45            # устанавливаем допустимое время выполнения функции
             try:
-                df_result = future.result(timeout=wait_time)    # если время ожидания выполнения ф-ции не истечено, то получаем результат
+                df_final = future.result(timeout=wait_time)    # если время ожидания выполнения ф-ции не истечено, то получаем результат
             except concurrent.futures.TimeoutError:             # если таймаут превышен - прерываем процесс и иформируем пользователя
                 future.cancel()                                 # прерываем процесс
                 await message.answer(
                     "⏰ Время ожидания данных превышено. Возможно, технические неполадки 🤷‍♂️\nПожалуйста, попробуйте ещё раз попозже 🙏\n"
                     "Чтобы перезагрузить бота - выберите 'Начать сначала' из меню СЛЕВА в строке ввода сообщений 👈")
+                # global dt
+                # dt = []  # очистка списка дат и времени
+                await state.clear()  # очистка состояния
                 return                                         # завершаем выполнение програмы (можно перезагрузить бота из TG)
             except Exception as e:                             # если ф-ция вернула ошибку (сбой), то информируем пользователя также
                 await message.answer(
                     "❌ В процессе запроса данных произошла ошибка. Возможно, технические неполадки 🤷‍♂️\nПожалуйста, попробуйте ещё раз попозже 🙏\n"
                     "Чтобы перезагрузить бота - выберите 'Начать сначала' из меню СЛЕВА в строке ввода сообщений 👈")
+                # global dt
+                # dt = []  # очистка списка дат и времени
+                await state.clear()  # очистка состояния
                 return                                         # завершаем выполнение програмы (можно перезагрузить бота из TG)
 
 
                 # Если ошибок при выполнении result.result_date_time не было, то выполняем код дальше:
             global dt  # объявляем, что берем глобальную переменную dt
-            dates = df_result.index
-            for date in dates:
-                times = [time for time in df_result.loc[date] if time != '']  # формируем список
-                if times:
-                    for time in times:
-                        dt.append(f"{date} {time}")
 
-            keyboard_dates_and_times = kb.create_keyboard_dates_and_times(dt)
-            await message.answer(f"Спасибо за ожидание.\nВыберите дату и время 📆👇",
-                                         reply_markup=keyboard_dates_and_times)
+            # Если получили пустой датафреейм df_final (всё время занято в расписании, то выводим сообщение:
+            # Проверка, является ли датафрейм "пустым"
+
+            # Проверка, является ли датафрейм "пустым"
+            is_empty = df_final.replace("", pd.NA).dropna(axis=0, how='all').empty
+
+            if is_empty:
+                print('Финальный датафрейм пуст!')
+                link = "https://t.me/G_Veronik"
+                escaped_link = link.replace("_", r"\_")  # экранируем символ подчеркивания
+
+                await bot.send_message(message.chat.id, f"В настоящее время нет свободных записей на процедуры 🙁\n"
+                                     f"Пожалуйста, выберите другое место и попробуйте снова -> /start\n"
+                                     f"или свяжитесь с Вероникой.\n\n"
+                                     f"График разработан на ближайшие 9 дней, можно договориться на более позднюю дату 😉\n"
+                                     f"Свяжитесь с [Вероникой]({link}) - что-нибудь придумаем 👌 \n"
+                                                        f"{escaped_link}", parse_mode="Markdown")   # опция parse_mode="Markdown" - подставляем в [текст](нужный url) Markdown-синтаксис
+                global dt
+                dt = []  # очистка списка дат и времени
+                await state.clear()  # очистка состояния
+            else:
+                dates = df_final.index
+                for date in dates:
+                    times = [time for time in df_final.loc[date] if time != '']  # формируем список
+                    if times:
+                        for time in times:
+                            dt.append(f"{date} {time}")
+
+                keyboard_dates_and_times = kb.create_keyboard_dates_and_times(dt)
+                await message.answer(f"Спасибо за ожидание.\nВыберите дату и время 📆👇",
+                                             reply_markup=keyboard_dates_and_times)
 
 @router.message(DateTimeSelection.date_time)
 async def process_date_time_choice(message: Message, state: FSMContext):
@@ -218,6 +252,11 @@ async def button_note_click(message: Message, bot, state: FSMContext):
             user_name = data2["user_name"]
             note = "_"
             user_link = f"https://t.me/{user_acc}"
+            escaped_user_link = user_link.replace("_", r"\_")  # экранируем символ подчеркивания
+
+            for key, value in places_url.items():     # перебираем словарь место-url
+                if key == place:                      # выбираем url по ключу места
+                    url_cow = value
 
 
             send_to_db(date_time, procedure, place, phone, user_name, user_link, note)   # передаем данные в функцию записи заявки в Расписание
@@ -226,9 +265,12 @@ async def button_note_click(message: Message, bot, state: FSMContext):
             formatted_now = now.strftime("%Y-%m-%d %H:%M:%S")    # форматируем текущую дату и время
                     # отправка ботом оповещения о новой записи мастеру в личный чат
             await bot.send_message(veron_chat_id,
-                                   f"{formatted_now} - Записался клиент: {user_name}\nНомер телефона: {phone}\nЛинк(TG): {user_link}\n"
-                                   f"Дата и время записи: {date_time}\nПроцедура: {procedure}\nМесто: {place}\n"
-                                   f"Примечание: {note}")
+                                   f"{formatted_now} - Записался клиент: {user_name}\nНомер телефона: {phone}\nЛинк(TG): {escaped_user_link}\n"
+                                   f"Дата и время записи: {date_time}\nПроцедура: {procedure}\nМесто: [{place}]({url_cow})\n"
+                                   f"Примечание: {note}\nТекущее [расписание]({gsheet_schedule_url})", parse_mode="Markdown")         # опция parse_mode="Markdown" - подставляем в [текст](нужный url) Markdown-синтаксис
+            global dt
+            dt = []  # очистка списка дат и времени
+            await state.clear()  # очистка состояния
 
 @router.message(AddNote.note)
 async def process_note(message: Message, bot, state: FSMContext):
@@ -252,16 +294,23 @@ async def process_note(message: Message, bot, state: FSMContext):
         else:
             note = "_"
         user_link = f"https://t.me/{user_acc}"
+        escaped_user_link = user_link.replace("_", r"\_")  # экранируем символ подчеркивания
+
+        for key, value in places_url.items():         # перебираем словарь место-url
+            if key == place:                          # выбираем url по ключу места
+                url_cow = value
 
         send_to_db(date_time, procedure, place, phone, user_name, user_link, note)   # передаем данные в функцию записи заявки в Расписание
         await message.answer(f"Спасибо! 🎯\nВероника свяжется с Вами для подтверждения записи в ближайшее время.\nХорошего дня! 👍☀️❤️", reply_markup=kb.ReplyKeyboardRemove())
         # отправка ботом оповещения о новой записи мастеру в личный чат
         now = datetime.now()
         formatted_now = now.strftime("%Y-%m-%d %H:%M:%S")
-        await bot.send_message(veron_chat_id, f"{formatted_now} - Записался клиент: {user_name}\nНомер телефона: {phone}\nЛинк(TG): {user_link}\n"
-                                              f"Дата и время записи: {date_time}\nПроцедура: {procedure}\nМесто: {place}\n"
-                                              f"Примечание: {note}")
+        await bot.send_message(veron_chat_id, f"{formatted_now} - Записался клиент: {user_name}\nНомер телефона: {phone}\nЛинк(TG): {escaped_user_link}\n"
+                                              f"Дата и время записи: {date_time}\nПроцедура: {procedure}\nМесто: [{place}]({url_cow})\n"
+                                              f"Примечание: {note}\nТекущее [расписание]({gsheet_schedule_url})", parse_mode="Markdown")     # опция parse_mode="Markdown" - подставляем в [текст](нужный url) Markdown-синтаксис
 
+        global dt
+        dt = []  # очистка списка дат и времени
         await state.clear()  # очистка состояния
     else:
         pass

@@ -18,15 +18,16 @@ bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
 
-
-
 async def main():
     dp.include_router(router)        # подключаем обработчика событий из handlers.py к Dispatcher
     await dp.start_polling(bot)      # запускаем бота
 
 
+
 if __name__ == '__main__':
     try:
         asyncio.run(main())
+
+
     except KeyboardInterrupt:
         print('Бот остановлен.')
