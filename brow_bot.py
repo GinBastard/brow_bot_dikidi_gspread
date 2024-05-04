@@ -7,7 +7,8 @@ import asyncio
 
 from aiogram import Bot, Dispatcher     # Dispatcher - обработчик событий
 from app.handlers import router         # импортируем обработчика событий из другого файла, где он используется handlers.py
-
+from app.handlers import check_inactive_users
+from app.globals import global_state
 
 
 # tatoo_brow_bot
@@ -20,6 +21,10 @@ dp = Dispatcher()
 
 async def main():
     dp.include_router(router)        # подключаем обработчика событий из handlers.py к Dispatcher
+
+    # Запускаем проверку бездействия пользователей в отдельном потоке в цикле
+    asyncio.ensure_future(check_inactive_users(bot, global_state))
+    # Запускаем бота
     await dp.start_polling(bot)      # запускаем бота
 
 
@@ -27,7 +32,5 @@ async def main():
 if __name__ == '__main__':
     try:
         asyncio.run(main())
-
-
     except KeyboardInterrupt:
         print('Бот остановлен.')
