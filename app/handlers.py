@@ -1,5 +1,5 @@
-from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery, Update, Chat
+from aiogram import Router
+from aiogram.types import Message
 from aiogram.filters import CommandStart, Command    # CommandStart (/start), Command (любые другие команды)
 from aiogram.fsm.state import State, StatesGroup      # состояния (для хранения переменных)
 from aiogram.fsm.context import FSMContext            # контекст для состояний
@@ -228,7 +228,7 @@ async def process_place_choice(message: Message, bot, state: FSMContext):
         # Запускаем асинхронную функцию с таймаутом (запуск процесса асинхронно и проверка его завершения)
         with concurrent.futures.ThreadPoolExecutor() as executor:
             future = executor.submit(result.result_date_time, data["procedure"], data["place"])  # передаём нужную функцию и параметры (отдельно)
-            wait_time = 45            # устанавливаем допустимое время выполнения функции
+            wait_time = 60            # устанавливаем допустимое время выполнения функции
             try:
                 df_final = future.result(timeout=wait_time)    # если время ожидания выполнения ф-ции не истечено, то получаем результат
             except concurrent.futures.TimeoutError:             # если таймаут превышен - прерываем процесс и иформируем пользователя

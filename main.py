@@ -1,6 +1,4 @@
 import pandas as pd
-from aiogram.handlers import CallbackQueryHandler
-
 pd.set_option('display.expand_frame_repr', False)   # показывать все строки и столбцы без переносов
 
 import asyncio
@@ -13,9 +11,9 @@ from app.globals import global_state
 
 # tatoo_brow_bot
 # t.me/tatoo_brow_bot
-API_TOKEN = '7141747698:AAHu-H6Z7w3Jm8kIvjc_6XaGyLzN5bK2x54'
+TG_API_TOKEN = '7141747698:AAHu-H6Z7w3Jm8kIvjc_6XaGyLzN5bK2x54'
 
-bot = Bot(token=API_TOKEN)
+bot = Bot(token=TG_API_TOKEN)
 dp = Dispatcher()
 
 
