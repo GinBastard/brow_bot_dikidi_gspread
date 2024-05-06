@@ -15,19 +15,22 @@ import re
 from datetime import datetime
 
 from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
 
 # ТИХИЙ запуск вебдрайвера selenium
 from selenium.webdriver.chrome.options import Options
 options = Options()
-options.add_argument('--no-sandbox')
-options.add_argument('--headless')
-options.add_argument('--disable-dev-shm-usage')
+options.add_argument('--no-sandbox')     # может быть полезным в ситуациях, когда Selenium WebDriver запускается в ограниченной среде, где доступ к песочнице может быть запрещен или вызывать проблемы
+options.add_argument('--headless')       # может быть полезным, так как он обычно ускоряет процесс выполнения тестов и уменьшает потребление ресурсов компьютера. Однако, в некоторых случаях, элементы на странице могут отображаться или вести себя по-другому в режиме безголового браузера, что может вызывать проблемы при выполнении сценариев.
+options.add_argument('--disable-dev-shm-usage')   # Chrome может использовать /dev/shm для хранения временных данных, таких как изображения или другие ресурсы. Однако, в некоторых средах или конфигурациях это может вызывать проблемы, особенно при ограниченных ресурсах.
 
-options.add_argument("start-maximized");
-options.add_argument("disable-infobars");
-options.add_argument("--disable-extensions");
-options.add_argument("--disable-gpu");
-options.add_argument("--disable-dev-shm-usage");
+# options.add_argument("start-maximized");
+# options.add_argument("disable-infobars");
+# options.add_argument("--disable-extensions");
+# options.add_argument("--disable-gpu");
+# options.add_argument("--disable-dev-shm-usage");
 
 
 from selenium.webdriver.common.by import By
@@ -56,11 +59,20 @@ def get_dikidi_dates(url):
 
         # запускаем драйвер Chrome в ТИХОМ режиме ((options=options) - опции указаны выше
         driver = webdriver.Chrome(options=options)
+        #driver = webdriver.Chrome()
 
         driver.get(url)
+        time.sleep(2)      # делаем паузу для прогрузки контента на странице в браузере
+        # Явные ожидания с таймаутом в 5 секунд
+        #wait = WebDriverWait(driver, 5)
 
-        # Находим div, внутри которого содержится текст "ещё"
-        div_element = driver.find_element(By.XPATH, "//div[contains(text(), 'ещё')]")
+
+            # Находим div, внутри которого содержится текст "ещё" - [не работает на '--headless' режиме для dikidi.net]
+        #div_element = driver.find_element(By.XPATH, "//div[contains(text(), 'ещё')]")
+            # Находим div c классом nrs-color (кнопка "ещё")  - Работает на '--headless' режиме для dikidi.net и .com!!!
+        div_element = driver.find_element(By.CSS_SELECTOR, "div.nrs-color")
+
+
         div_element.click()
         time.sleep(1)      # делаем паузу для прогрузки контента на странице в браузере
 
@@ -94,6 +106,8 @@ def get_dikidi_dates(url):
                     values.append(time_.text)                   # добавляем в список время
                 date_time_dikidi[date_] = values    # создаём словарь с датами dikidi и временем работы, помещаем в каждую дату (ключ) - список с временем
 
+
+        driver.quit()  # Закрываем браузер
         # Загрузка данных из словаря в DataFrame
         # for date, times in date_time_dikidi.items():       # перебираем словар: получаем ключи и значения из словаря дата-время
         #     for time_e in times:                           # перебираем значения (списки времени)
