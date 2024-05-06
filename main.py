@@ -4,6 +4,10 @@ pd.set_option('display.expand_frame_repr', False)   # показывать вс�
 import asyncio
 
 from aiogram import Bot, Dispatcher     # Dispatcher - обработчик событий
+from aiogram.enums import ParseMode
+from aiogram.client.session.aiohttp import AiohttpSession
+# pip install aiohttp-socks
+
 from app.handlers import router         # импортируем обработчика событий из другого файла, где он используется handlers.py
 from app.handlers import check_inactive_users
 from app.globals import global_state
@@ -13,11 +17,16 @@ from app.globals import global_state
 # t.me/tatoo_brow_bot
 TG_API_TOKEN = '7141747698:AAHu-H6Z7w3Jm8kIvjc_6XaGyLzN5bK2x54'
 
-bot = Bot(token=TG_API_TOKEN)
+# bot = Bot(token=TG_API_TOKEN)
 dp = Dispatcher()
 
 
 async def main():
+    session = AiohttpSession(proxy="http://proxy.mtproto.co:443")
+    bot = Bot(token=TG_API_TOKEN, session=session)  # создаем бота c прокси
+
+    # bot = Bot(token=TG_API_TOKEN)     # создаем бота без прокси
+
     dp.include_router(router)        # подключаем обработчика событий из handlers.py к Dispatcher
 
     # Запускаем проверку бездействия пользователей в отдельном потоке в цикле
