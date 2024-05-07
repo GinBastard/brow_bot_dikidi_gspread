@@ -8,7 +8,7 @@ import pandas as pd
 pd.set_option('display.expand_frame_repr', False)   # показывать все строки и столбцы без переносов
 
 import asyncio
-import emoji
+
 
 from datetime import datetime, timedelta
 
@@ -218,7 +218,7 @@ async def process_place_choice(message: Message, bot, state: FSMContext):
         await state.update_data(place=selected_place)
         await state.set_state(DateTimeSelection.date_time)
 
-        await bot.send_message(message.chat.id, f"Выбрано место: {selected_place}. \nСейчас сверю график и вернусь к Вам (в течение 15-30 секунд), выберем дату и время процедуры {emoji.emojize(':man_running_facing_right:')}", reply_markup=kb.ReplyKeyboardRemove())
+        await bot.send_message(message.chat.id, f"Выбрано место: {selected_place}. \nСейчас сверю график и вернусь к Вам (в течение 15-30 секунд), выберем дату и время процедуры 🏃‍♂️‍➡️", reply_markup=kb.ReplyKeyboardRemove())
 
         # Отправка сообщения с текстом и эмодзи - песочные часы
         await bot.send_message(message.chat.id, "\U000023F3")
@@ -241,6 +241,7 @@ async def process_place_choice(message: Message, bot, state: FSMContext):
                 await state.clear()  # очистка состояния
                 return                                         # завершаем выполнение програмы (можно перезагрузить бота из TG)
             except Exception as e:                             # если ф-ция вернула ошибку (сбой), то информируем пользователя также
+                print(e)
                 await bot.send_message(message.chat.id,
                     "❌ В процессе запроса данных произошла ошибка. Возможно, технические неполадки 🤷‍♂️\nПожалуйста, попробуйте ещё раз попозже 🙏\n"
                     "Чтобы перезагрузить бота - выберите 'Начать сначала' из меню СЛЕВА в строке ввода сообщений 👈")

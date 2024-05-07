@@ -13,7 +13,7 @@ scopes = [
     'https://www.googleapis.com/auth/drive'
 ]
 credentials = Credentials.from_service_account_file(
-    'E:\Trading\keys\mypython-412919-56da1c8c153b.json',    # путь к файлу json с ключом API Google
+    'keys/mypython-412919-56da1c8c153b.json',    # путь к файлу json с ключом API Google
     scopes=scopes
 )
 gc = gspread.authorize(credentials)
@@ -71,7 +71,7 @@ def get_schedule_dates(date1, date2):
                             df_schedule_.iloc[index_num, column_num + 1] = 'Недоступно (занято)'  # Заполнения следующей ячейки +1
 
                 # выводим разграфленный датафрейм с Расписанием
-        print('Дата фрейм schedule_ready2:\n', tabulate(df_schedule_.fillna(''), headers='keys', tablefmt='pretty'))
+        print('Дата фрейм df_schedule_:\n', tabulate(df_schedule_.fillna(''), headers='keys', tablefmt='pretty'))
 
         return df_schedule_    # возвращаем сформированный датафрейм
 

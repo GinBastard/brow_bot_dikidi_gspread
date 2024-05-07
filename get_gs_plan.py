@@ -14,7 +14,7 @@ scopes = [
     'https://www.googleapis.com/auth/drive'
 ]
 credentials = Credentials.from_service_account_file(
-    'E:\Trading\keys\mypython-412919-56da1c8c153b.json',    # путь к файлу json с ключом API Google
+    'keys/mypython-412919-56da1c8c153b.json',    # путь к файлу json с ключом API Google
     scopes=scopes
 )
 gc = gspread.authorize(credentials)

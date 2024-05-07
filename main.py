@@ -1,6 +1,3 @@
-import pandas as pd
-pd.set_option('display.expand_frame_repr', False)   # показывать все строки и столбцы без переносов
-
 import asyncio
 
 from aiogram import Bot, Dispatcher     # Dispatcher - обработчик событий
@@ -22,10 +19,10 @@ dp = Dispatcher()
 
 
 async def main():
-    session = AiohttpSession(proxy="http://proxy.mtproto.co:443")
-    bot = Bot(token=TG_API_TOKEN, session=session)  # создаем бота c прокси
+    #session = AiohttpSession(proxy="http://proxy.mtproto.co:443")
+    #bot = Bot(token=TG_API_TOKEN, session=session)  # создаем бота c прокси
 
-    # bot = Bot(token=TG_API_TOKEN)     # создаем бота без прокси
+    bot = Bot(token=TG_API_TOKEN)     # создаем бота без прокси
 
     dp.include_router(router)        # подключаем обработчика событий из handlers.py к Dispatcher
 

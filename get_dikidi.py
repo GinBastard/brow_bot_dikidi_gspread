@@ -1,23 +1,7 @@
-# для Repl.it:
-# в файл replit внести:
-'''
-{ pkgs }: {
-  deps = [
-    pkgs.glibcLocales
-    pkgs.geckodriver
-    pkgs.ungoogled-chromium
-    pkgs.chromedriver
-  ];
-}
-'''
-
 import re
 from datetime import datetime
 
 from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-
 
 # ТИХИЙ запуск вебдрайвера selenium
 from selenium.webdriver.chrome.options import Options
