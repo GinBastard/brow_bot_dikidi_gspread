@@ -1,9 +1,6 @@
 import asyncio
 
 from aiogram import Bot, Dispatcher     # Dispatcher - обработчик событий
-from aiogram.enums import ParseMode
-from aiogram.client.session.aiohttp import AiohttpSession
-# pip install aiohttp-socks
 
 from app.handlers import router         # импортируем обработчика событий из другого файла, где он используется handlers.py
 from app.handlers import check_inactive_users
@@ -34,6 +31,7 @@ async def main():
 
 
 if __name__ == '__main__':
+    print('Бот Brow-bot запущен.\nЕсли вы используете отдельное приложение для бота, чтобы завершить его работу - просто закройте окно.\n')
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
