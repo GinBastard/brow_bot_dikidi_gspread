@@ -2,7 +2,7 @@
 
 # tatoo_brow_bot
 # t.me/tatoo_brow_bot
-TG_API_TOKEN = '7141747698:AAHu-H6Z7w3Jm8kIvjc_6XaGyLzN5bK2x54'
+TG_API_TOKEN = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
 
 import os
 TG_API_TOKEN = os.environ['TG_API_TOKEN']
