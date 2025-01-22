@@ -193,7 +193,6 @@ async def process_procedure_choice(message: Message, bot, state: FSMContext):
         await bot.send_message(message.chat.id, f"Выбрана процедура: {selected_procedure}. Выберите место 🧭👇", reply_markup=keyboard_places)
 
         # Обновляем время последнего сообщения для данного пользователя
-
         last_message_time_dict[message.chat.id] = datetime.now()
 
 

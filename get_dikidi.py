@@ -16,7 +16,6 @@ options.add_argument('--disable-dev-shm-usage')   # Chrome может испол
 # options.add_argument("--disable-gpu");
 # options.add_argument("--disable-dev-shm-usage");
 
-
 from selenium.webdriver.common.by import By
 
 
@@ -39,21 +38,15 @@ def is_am_pm_format(time_str):
 def get_dikidi_dates(url):
     try:
 
-        #driver = webdriver.Chrome()  # Используем Chrome в обычном режиме с открытием окна
-
         # запускаем драйвер Chrome в ТИХОМ режиме ((options=options) - опции указаны выше
         driver = webdriver.Chrome(options=options)
-        #driver = webdriver.Chrome()
+
 
         driver.get(url)
         time.sleep(2)      # делаем паузу для прогрузки контента на странице в браузере
         # Явные ожидания с таймаутом в 5 секунд
         #wait = WebDriverWait(driver, 5)
 
-
-            # Находим div, внутри которого содержится текст "ещё" - [не работает на '--headless' режиме для dikidi.net]
-        #div_element = driver.find_element(By.XPATH, "//div[contains(text(), 'ещё')]")
-            # Находим div c классом nrs-color (кнопка "ещё")  - Работает на '--headless' режиме для dikidi.net и .com!!!
         div_element = driver.find_element(By.CSS_SELECTOR, "div.nrs-color")
 
 
@@ -92,15 +85,6 @@ def get_dikidi_dates(url):
 
 
         driver.quit()  # Закрываем браузер
-        # Загрузка данных из словаря в DataFrame
-        # for date, times in date_time_dikidi.items():       # перебираем словар: получаем ключи и значения из словаря дата-время
-        #     for time_e in times:                           # перебираем значения (списки времени)
-        #         if time_e:
-        #             hour = int(time_e.split(':')[0])       # разделяем время на часы и минуты
-        #             min_ = int(time_e.split(':')[1])
-        #             if min_ >= 40:                         # если минуты больше или равны 40, то переносим на следующий час (16:40 -> 17:00)
-        #                hour += 1
-        #             df_dikidi.at[date, str(hour)] = time_e    # добавляем в датафрейм дату и время
 
         # Загрузка данных из словаря в DataFrame
         for date, times in date_time_dikidi.items():  # перебираем словар: получаем ключи и значения из словаря дата-время

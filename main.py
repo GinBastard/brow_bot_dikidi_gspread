@@ -9,15 +9,15 @@ from app.globals import global_state
 
 # tatoo_brow_bot
 # t.me/tatoo_brow_bot
-TG_API_TOKEN = '7141747698:AAHu-H6Z7w3Jm8kIvjc_6XaGyLzN5bK2x54'
+
+#  токен удален для безопасности
+TG_API_TOKEN = 'ХХХХХХХХХХХХХХХХХХХХХХХХХХХХХХХХХХХХХХХХХХХ'
 
 # bot = Bot(token=TG_API_TOKEN)
 dp = Dispatcher()
 
 
 async def main():
-    #session = AiohttpSession(proxy="http://proxy.mtproto.co:443")
-    #bot = Bot(token=TG_API_TOKEN, session=session)  # создаем бота c прокси
 
     bot = Bot(token=TG_API_TOKEN)     # создаем бота без прокси
 
